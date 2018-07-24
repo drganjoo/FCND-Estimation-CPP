@@ -26,9 +26,9 @@ FILE(GLOB HEADERS
         lib/mavlink/*.h
         lib/mavlink/common/*.h)
 
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Network REQUIRED)
-find_package(Qt5Widgets REQUIRED)
+#find_package(Qt5Core REQUIRED)
+#find_package(Qt5Network REQUIRED)
+#find_package(Qt5Widgets REQUIRED)
 
 # /System/Library/Frameworks/GLUT.framework
 find_package(GLUT REQUIRED)
@@ -46,9 +46,9 @@ add_executable(CPPEstSim
         )
 
 target_link_libraries(CPPEstSim
-        Qt5::Core
-        Qt5::Network
-        Qt5::Widgets
+#        Qt5::Core
+#        Qt5::Network
+#        Qt5::Widgets
         ${GLUT_LIBRARIES}
         ${OPENGL_LIBRARIES}
         pthread
