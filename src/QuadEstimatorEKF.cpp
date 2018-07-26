@@ -3,7 +3,9 @@
 #include "Utility/SimpleConfig.h"
 #include "Utility/StringUtils.h"
 #include "Math/Quaternion.h"
+#include <iostream>
 
+using namespace std;
 using namespace SLR;
 
 const int QuadEstimatorEKF::QUAD_EKF_NUM_STATES;
@@ -104,7 +106,6 @@ void QuadEstimatorEKF::UpdateFromIMU(V3F accel, V3F gyro)
 	Quaternion<float> q = Quaternion<float>::FromEuler123_RPY(rollEst, pitchEst, ekfState(6));
 	q.IntegrateBodyRate(gyro, dtIMU);
 	q.Normalise();
-	//V3D angles = q.ToEulerRPY();
 
 	float predictedRoll = q.Roll();
 	float predictedPitch = q.Pitch();
@@ -293,6 +294,12 @@ void QuadEstimatorEKF::Predict(float dt, V3F accel, V3F gyro)
 	V3F rbg_2(RbgPrime(2, 0), RbgPrime(2, 1), RbgPrime(2, 2));
 	gPrime(5, 6) = rbg_1.dot(accel);
 
+	// sigma_bar = np.matmul(G_now,np.matmul(previous_covariance,np.transpose(G_now))) + self.q_t
+
+	MatrixXf cov_translated(QUAD_EKF_NUM_STATES, QUAD_EKF_NUM_STATES);
+	cov_translated = gPrime * (ekfCov * gPrime.transpose());
+  ekfCov = cov_translated + Q;
+
 	/////////////////////////////// END STUDENT CODE ////////////////////////////
 
 	ekfState = newState;
@@ -337,9 +344,27 @@ void QuadEstimatorEKF::UpdateFromMag(float magYaw)
 	//    (you don't want to update your yaw the long way around the circle)
 	//  - The magnetomer measurement covariance is available in member variable R_Mag
 	////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
+  zFromX(0) = ekfState(6);
+  hPrime(6) = 1;
 
+  float diff = z(0) - zFromX(0);
 
-	/////////////////////////////// END STUDENT CODE ////////////////////////////
+//  std::cout << "z:" << z(0) << ", zX:" << zFromX(0) << ", Δz:" << diff << ", after: ";
+
+  if (diff > F_PI) {
+//    cout << " (diff > F_PI) ";
+    diff -= 2.f * F_PI;
+  }
+  if (diff < -F_PI) {
+//    cout << " (diff < -F_PI) ";
+    diff += 2.f * F_PI;
+  }
+
+  zFromX(0) = z(0) - diff;
+
+//  cout << "diff:" << diff << ", z " << z << ", zX:" << zFromX(0) << ", Δz:" << zFromX(0) - z(0) << endl;
+
+  /////////////////////////////// END STUDENT CODE ////////////////////////////
 
 	Update(z, hPrime, R_Mag, zFromX);
 }
