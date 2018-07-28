@@ -298,7 +298,7 @@ void QuadEstimatorEKF::Predict(float dt, V3F accel, V3F gyro)
 
 	MatrixXf cov_translated(QUAD_EKF_NUM_STATES, QUAD_EKF_NUM_STATES);
 	cov_translated = gPrime * (ekfCov * gPrime.transpose());
-  ekfCov = cov_translated + Q;
+	ekfCov = cov_translated + Q;
 
 	/////////////////////////////// END STUDENT CODE ////////////////////////////
 
@@ -323,6 +323,13 @@ void QuadEstimatorEKF::UpdateFromGPS(V3F pos, V3F vel)
 	//  - The GPS measurement covariance is available in member variable R_GPS
 	//  - this is a very simple update
 	////////////////////////////// BEGIN STUDENT CODE ///////////////////////////
+
+	// x, y, z, x_dot, y_dot, z_dot is what we require
+
+	for (int i = 0; i < 6; i++) {
+		hPrime(i, i) = 1;
+		zFromX(i) = ekfState(i);
+	}
 
 	/////////////////////////////// END STUDENT CODE ////////////////////////////
 
