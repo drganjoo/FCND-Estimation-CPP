@@ -179,7 +179,7 @@ VectorXf QuadEstimatorEKF::PredictState(VectorXf curState, float dt, V3F accel, 
 	// In the pdf we have g(x, u, delta_t) = Fx + Bu
 	//	Bu part is handled by the attitude quaternion rotating the acceleration into inertial frame
 
-	// Ref: slack channel discussion by 
+	// Ref: slack channel discussion
 	V3F accel_inertial = attitude.Rotate_BtoI(accel);
 	
 	const float x = curState(0);
@@ -356,20 +356,14 @@ void QuadEstimatorEKF::UpdateFromMag(float magYaw)
 
   float diff = z(0) - zFromX(0);
 
-//  std::cout << "z:" << z(0) << ", zX:" << zFromX(0) << ", Δz:" << diff << ", after: ";
-
   if (diff > F_PI) {
-//    cout << " (diff > F_PI) ";
     diff -= 2.f * F_PI;
   }
   if (diff < -F_PI) {
-//    cout << " (diff < -F_PI) ";
     diff += 2.f * F_PI;
   }
 
   zFromX(0) = z(0) - diff;
-
-//  cout << "diff:" << diff << ", z " << z << ", zX:" << zFromX(0) << ", Δz:" << zFromX(0) - z(0) << endl;
 
   /////////////////////////////// END STUDENT CODE ////////////////////////////
 

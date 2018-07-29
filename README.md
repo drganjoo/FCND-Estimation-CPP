@@ -1,6 +1,11 @@
 # Ruberic Points
 
-## Standard Deviation
+## Calculating Standard Deviation
+
+|Standard Deviation|Value|
+|-|-|
+|MeasuredStdDev_GPSPosXY|0.717748979626|
+|MeasuredStdDev_AccelXY|0.509317510557|
 
 Runnning scenario `06_NoisySensors`, generated two files 'config/log/Graph1.txt' and 'config/log/Graph2.txt' containing the GPS and Accelerometer data respectively.
 
@@ -37,7 +42,57 @@ print(gps_sigma)
 print(accel_sigma)
 ```
 
+## UpdateFromIMU
+
+Quaternion was used as a better integration technique for gyro integration. The following steps were used:
+
+1) Convert Eulger angle to Quaternion `FromEuler123_RPY(rollEst, pitchEst, ekfState(6));`
+2) Use Quaternion class' built in `IntegrateBodyRate` for integrating the given gyro rates using Δt
+3) Save roll, pitch and yaw using Quaternion `roll()`, `pitch()` and `yaw()` functions
+
+## Prediction Step
+
+EKF Formula for prediction step:
+
+![ekf_predict](writeup/ekf_predict.png)
+
+### Predict State
+
+For computing g(xt, ut, Δt), given acceleration vector is converted from body to inertial frame using the function `attitude.Rotate_BtoI`.
+
+Then the following formula are used for moving the state forward:
+
+```
+x = x + x_dot * dt;
+y = y + y_dot * dt;
+z = z + z_dot * dt;
+x_dot = x_dot + accel_inertial.x * dt;
+y_dot = y_dot + accel_inertial.y * dt;
+z_dot = z_dot + accel_inertial.z * dt - CONST_GRAVITY * dt
+yaw = yaw;
+```
+
+### Jacobian
+
+For g'(xt, ut, Δt), Rbg_Prime is computed using the formula;
+
+![Rbg_prime](writeup/rbg_prime)
+
+### P (Covariance Matrix) Calculation:
+
+Prediction of covariance matrix is calculated using the formula:
+
+```
+cov_translated = gPrime * (ekfCov * gPrime.transpose());
+ekfCov = cov_translated + Q;
+```
+
+## Update from Magnetometer
+
+
+
 # Original Readme Follows
+
 # Estimation Project #
 
 Welcome to the estimation project.  In this project, you will be developing the estimation portion of the controller used in the CPP simulator.  By the end of the project, your simulated quad will be flying with your estimator and your custom controller (from the previous project)!
