@@ -1,3 +1,43 @@
+# Ruberic Points
+
+## Standard Deviation
+
+Runnning scenario `06_NoisySensors`, generated two files 'config/log/Graph1.txt' and 'config/log/Graph2.txt' containing the GPS and Accelerometer data respectively.
+
+Standard Deviation Formula:
+
+![equation](https://www.codecogs.com/eqnedit.php?latex=\frac{\sum_{i=1}^{n}{(X_i&space;-&space;\overline{X})^2}}{n})
+
+The following code was run to find out the standard deviation of the two sensors:
+
+```
+import numpy as np
+import csv
+
+def read_data(filename):
+    data= []
+    with open(filename) as f:
+        # skip header
+        header = f.readline()
+        
+        # read each line and store the data column
+        reader = csv.reader(f)
+        for row in reader:
+            data.append(float(row[1]))
+            
+    return np.array(data)
+
+gps = read_data('./log/Graph1.txt')
+accel = read_data('./log/Graph2.txt')
+
+gps_sigma = np.std(gps, ddof=0.0)
+accel_sigma = np.std(accel, ddof=0.0)
+
+print(gps_sigma)
+print(accel_sigma)
+```
+
+# Original Readme Follows
 # Estimation Project #
 
 Welcome to the estimation project.  In this project, you will be developing the estimation portion of the controller used in the CPP simulator.  By the end of the project, your simulated quad will be flying with your estimator and your custom controller (from the previous project)!
