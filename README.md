@@ -114,9 +114,11 @@ Original code from control-cpp project was integrated. The original parameters w
 
 Flight Without Modification:
 
+![original_params](writeup/original_params.png)
 
 Flight With Modification:
 
+![detuned_params](writeup/detuned_params.png)
 
 
 
