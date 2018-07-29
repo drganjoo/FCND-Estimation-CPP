@@ -2,16 +2,7 @@
 
 ## Calculating Standard Deviation
 
-|Standard Deviation|Value|
-|-|-|
-|MeasuredStdDev_GPSPosXY|0.717748979626|
-|MeasuredStdDev_AccelXY|0.509317510557|
-
 Runnning scenario `06_NoisySensors`, generated two files 'config/log/Graph1.txt' and 'config/log/Graph2.txt' containing the GPS and Accelerometer data respectively.
-
-Standard Deviation Formula:
-
-![equation](https://www.codecogs.com/eqnedit.php?latex=\frac{\sum_{i=1}^{n}{(X_i&space;-&space;\overline{X})^2}}{n})
 
 The following code was run to find out the standard deviation of the two sensors:
 
@@ -41,6 +32,11 @@ accel_sigma = np.std(accel, ddof=0.0)
 print(gps_sigma)
 print(accel_sigma)
 ```
+
+|Standard Deviation|Value|
+|-|-|
+|MeasuredStdDev_GPSPosXY|0.717748979626|
+|MeasuredStdDev_AccelXY|0.509317510557|
 
 ## UpdateFromIMU
 
