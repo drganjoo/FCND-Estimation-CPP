@@ -89,6 +89,35 @@ ekfCov = cov_translated + Q;
 
 ## Update from Magnetometer
 
+For updating the magnetometer, it was ensured that the angle error is the short way around, rather than the long way by:
+
+1) Computing difference of error: `diff = z(0) - zFromX(0)`
+2) If the distance was > PI, then 2π was subtracted from the difference
+3) If the distance was < PI, then 2π was added to the difference
+4) zFromX was recomputed by using the updated difference 
+
+Following H' matrix for converting state to measurement was used:
+
+![h_prime_mag](writeup/h_prime_mag.png)
+
+## Update GPS
+
+Z matrix was set using position and velocity from the GPS
+
+Following H' matrix for converting state to measurement (for GPS) was used:
+
+![h_prime_gps](writeup/h_prime_gps.png)
+
+## Control Code Integration
+
+Original code from control-cpp project was integrated. The original parameters were detuned to get a better overall error rate.
+
+Flight Without Modification:
+
+
+Flight With Modification:
+
+
 
 
 # Original Readme Follows
