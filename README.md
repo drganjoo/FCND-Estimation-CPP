@@ -38,23 +38,29 @@ print(accel_sigma)
 |MeasuredStdDev_GPSPosXY|0.717748979626|
 |MeasuredStdDev_AccelXY|0.509317510557|
 
+These values were updated in config/6_Sensornoise.txt against `MeasuredStdDev_GPSPosXY` and `MeasuredStdDev_AccelXY`
+
 ## UpdateFromIMU
 
-Quaternion was used as a better integration technique for gyro integration. The following steps were used:
+A complimentary filter has been coded for finding out the altitude of the drone. 
+
+![complimentary](writeup/complimentary.png)
+
+In order to find out the predicted roll and pitch from the gyro readings, a Quaternion was used as a better integration technique. The following steps were used:
 
 1) Convert Eulger angle to Quaternion `FromEuler123_RPY(rollEst, pitchEst, ekfState(6));`
 2) Use Quaternion class' built in `IntegrateBodyRate` for integrating the given gyro rates using Δt
-3) Save roll, pitch and yaw using Quaternion `roll()`, `pitch()` and `yaw()` functions
+3) Use Quaternion `roll()`, `pitch()` for predicted_roll / predicted_pitch and use `yaw()` to update the state Ψ variable.
 
 ## Prediction Step
 
-EKF Formula for prediction step:
+EKF Formula for the overall prediction step:
 
 ![ekf_predict](writeup/ekf_predict.png)
 
 ### Predict State
 
-For computing g(xt, ut, Δt), given acceleration vector is converted from body to inertial frame using the function `attitude.Rotate_BtoI`.
+For computing g(xt, ut, Δt), the given acceleration vector is converted from body to inertial frame using the function `attitude.Rotate_BtoI`.
 
 Then the following formula are used for moving the state forward:
 
@@ -72,7 +78,21 @@ yaw = yaw;
 
 For g'(xt, ut, Δt), Rbg_Prime is computed using the formula;
 
-![Rbg_prime](writeup/rbg_prime)
+![Rbg_prime](writeup/rbg_prime.png)
+
+```
+	const float theta = pitch;
+	const float phi = roll;
+	const float psi = yaw;
+
+	RbgPrime(0, 0) = -cos(theta) * sin(psi);
+	RbgPrime(0, 1) = -sin(phi) * sin(theta) * sin(psi) - cos(phi) * cos(psi);
+	RbgPrime(0, 2) = -cos(phi) * sin(theta) * sin(psi) + sin(phi) * cos(psi);
+
+	RbgPrime(1, 0) = cos(theta) * cos(psi);
+	RbgPrime(1, 1) = sin(phi) * sin(theta) * cos(psi) - cos(phi) * sin(psi);
+	RbgPrime(1, 2) = cos(phi) * sin(theta) * cos(psi) + sin(phi) * sin(psi);
+```
 
 ### P (Covariance Matrix) Calculation:
 
@@ -87,10 +107,11 @@ ekfCov = cov_translated + Q;
 
 For updating the magnetometer, it was ensured that the angle error is the short way around, rather than the long way by:
 
-1) Computing difference of error: `diff = z(0) - zFromX(0)`
-2) If the distance was > PI, then 2π was subtracted from the difference
-3) If the distance was < PI, then 2π was added to the difference
-4) zFromX was recomputed by using the updated difference 
+1) Setting `zFromX(0) = ekfState(6)`
+2) Computing difference of error: `diff = z(0) - zFromX(0)`
+3) If the distance was > PI, then 2π was subtracted from the difference
+4) If the distance was < PI, then 2π was added to the difference
+5) zFromX was recomputed by using the updated difference 
 
 Following H' matrix for converting state to measurement was used:
 
